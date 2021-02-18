@@ -5,11 +5,11 @@
 #include <stdlib.h>
 
 //background
-int background_height=33;
-int background_width=150;
+int background_height;
+int background_width;
 
 //pad
-int pad_size=5;
+int pad_size;
 int pad_position_left;
 int pad_position_right;
 
@@ -21,9 +21,11 @@ int ball_Ycoordinate;
 //moves a pad
 //side 0-left  1-right
 //direction 0-down  1-up
-void move_pad(int side, int direction){
+//returns 1 if move was successful and 0 if not
+int move_pad(int side, int direction){
 	int pad_position;
 	int colum;
+	int moved=1;
 	//chooses moving side
 	if (side==LEFT){
 		pad_position=pad_position_left;
@@ -45,6 +47,9 @@ void move_pad(int side, int direction){
 		pad_position++;
 		printf("\e[%d;%dH|", pad_position+pad_size, colum);
 	}
+	else{
+		moved=0;
+	}
 	//saves new position of a choosen pad
 	if (side==LEFT){
 		pad_position_left=pad_position;
@@ -53,6 +58,7 @@ void move_pad(int side, int direction){
 		pad_position_right=pad_position;
 	}
 	fflush(stdout);
+	return moved;
 }
 
 //moves the ball to coordinate
@@ -65,25 +71,31 @@ void move_ball(int new_Xcoordinate, int new_Ycoordinate){
 	fflush(stdout);
 	//savesa new coordinates
 	ball_Ycoordinate=new_Ycoordinate;
-	ball_Xcoordinate=new_Xcoordinate;	
+	ball_Xcoordinate=new_Xcoordinate;
+	return;	
 }
 
 //setup of playing field
 //start_side: 0-left  1-right
-//returns coordinate of the ball in (X,Y) format
-int* setup(int start_side){
+//backgroundX lenght of background
+//backgroundY height of background
+//returns coordinate of the ball, position of pads in format (X_ball,Y_ball,left_pad,right_pad) 
+int* setup(int start_side, int set_pad_size, int backgroundX, int backgroundY){
 	//start position
 	//pads in the middle of 
 	//ball in the middle of choosen pad
+	background_width=backgroundX;
+	background_height=backgroundY;
+	pad_size=set_pad_size;
 	pad_position_right=background_height/2 - pad_size/2 + 1;
 	pad_position_left=background_height/2 - pad_size/2 + 1;
 	if (start_side==LEFT){
 		ball_Xcoordinate=2;
-		ball_Ycoordinate=pad_position_left+pad_size/2;
+		ball_Ycoordinate=pad_position_left+pad_size/2-1;
 	}
 	else{
 		ball_Xcoordinate=background_width-2;
-		ball_Ycoordinate=pad_position_right+pad_size/2;
+		ball_Ycoordinate=pad_position_right+pad_size/2-1;
 	}
 	//clears terminal
 	system("clear");
@@ -102,19 +114,19 @@ int* setup(int start_side){
 			else if(width==(background_width-1) && height>=pad_position_right && height<(pad_position_right+pad_size)){
 				putchar('|');	//right pad
 			}
-			else if(width==ball_Xcoordinate && height==ball_Ycoordinate){
-				putchar(ball_shape);	//ball
-			}
 			else{
 				putchar(' '); //empty space
 			}
 		}
 		putchar('\n');
 	}
+	printf("\e[%d;%dH%c", ball_Ycoordinate+1, ball_Xcoordinate+1, ball_shape); //draws the ball
 	fflush(stdout); //post changes
 	//return
-	static int return_coordinates[2];
-	return_coordinates[0]=ball_Xcoordinate;
-	return_coordinates[1]=ball_Ycoordinate;
-	return return_coordinates;
+	static int return_data[4];
+	return_data[0]=ball_Xcoordinate;
+	return_data[1]=ball_Ycoordinate;
+	return_data[2]=pad_position_left;
+	return_data[3]=pad_position_right;
+	return return_data;
 }

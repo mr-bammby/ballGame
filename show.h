@@ -12,8 +12,11 @@
 
 //setup of playing field
 //start_side: 0-left  1-right
-//returns coordinate of the ball in (X,Y) format
-int* setup(int start_side);
+//set_pad_size: sets size of pads
+//backgroundX lenght of background
+//backgroundY height of background
+//returns coordinate of the ball, position of pads in format (X_ball,Y_ball,left_pad,right_pad) 
+int* setup(int start_side, int set_pad_size, int backgroundX, int  backgroundY);
 
 
 //moves the ball to coordinate
@@ -26,6 +29,7 @@ void move_ball(int new_Xcoordinate, int new_Ycoordinate);
 //moves a pad
 //side 0-left  1-right
 //direction 0-down  1-up
-void move_pad(int side, int direction);
+//returns 1 if move was successful and 0 if not
+int move_pad(int side, int direction);
 
 #endif
